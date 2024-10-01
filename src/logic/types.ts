@@ -1,4 +1,4 @@
-import { PlayerId } from "rune-sdk";
+import { PlayerId, RuneClient } from "rune-sdk";
 
 // types of entities we'll display in the world
 export type EntityType = "PLAYER" | "TREE";
