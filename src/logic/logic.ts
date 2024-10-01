@@ -1,8 +1,11 @@
-import type { PlayerId, RuneClient } from "rune-sdk/multiplayer";
+import { GameState, Animation, Player } from "./types";
 
+// how much the players will move per frame
 export const MOVE_SPEED = 4;
 export const MOVE_ACCEL = 1;
 
+// a simple tile map specifying the sprite
+// to show at each location (-1 = no sprite)
 export const tileMap = [
   [0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2],
   [10, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 12],
@@ -17,7 +20,8 @@ export const tileMap = [
   [-1, -1, -1, -1, -1, 20, 22, -1, -1, -1, -1, -1],
 ];
 
-export const blocks = [
+// the position of the trees for the demo
+export const trees = [
   [200, 50],
   [300, 120],
   [50, 200],
@@ -29,50 +33,9 @@ export const blocks = [
   [700, 450],
 ];
 
-export type EntityType = "PLAYER" | "BLOCK";
-
-export enum Animation {
-  IDLE = 0,
-
-  WALK = 6,
-}
-
-export type Entity = {
-  x: number;
-  y: number;
-  sprite: number;
-  type: EntityType;
-  playerId?: PlayerId;
-};
-
-export type Player = {
-  controls: Controls;
-  animation: Animation;
-  vx: number;
-  vy: number;
-  flipped: boolean;
-} & Entity;
-
-export type Controls = {
-  left: boolean;
-  right: boolean;
-  up: boolean;
-  down: boolean;
-};
-
-export interface GameState {
-  entities: Entity[];
-  players: Player[];
-}
-
-type GameActions = {
-  controls: (controls: Controls) => void;
-};
-
-declare global {
-  const Rune: RuneClient<GameState, GameActions>;
-}
-
+// Check if the player is in a valid location. For the purposes
+// of this tech demo this is very simple - just check if the player
+// is standing on a valid tile
 function isValidPosition(state: GameState, x: number, y: number): boolean {
   x = Math.floor(x / 64);
   y = Math.floor(y / 64);
@@ -80,9 +43,16 @@ function isValidPosition(state: GameState, x: number, y: number): boolean {
   return tileMap[y] && tileMap[y][x] >= 0;
 }
 
+// Initialize the logic side of the Rune platform. This is your main
+// hook into the Rune platform for game state synchronization
 Rune.initLogic({
+  // number of players to allow in the game
   minPlayers: 1,
   maxPlayers: 4,
+  // this is the initialization function where
+  // we setup the initial game state before any player has
+  // a chance to modify it. The initial state is sent to
+  // all players to start the game
   setup: (allPlayerIds) => {
     const initialState: GameState = {
       entities: [],
@@ -95,6 +65,10 @@ Rune.initLogic({
           y: (index + 1) * 64,
           playerId: p,
           type: "PLAYER",
+          // make the player have a different sprite color
+          // based on their index in the player array. This is
+          // a very simple approach for the purposes of a
+          // tech demo
           sprite: index % 4,
           animation: Animation.IDLE,
           controls: {
@@ -110,18 +84,21 @@ Rune.initLogic({
       }),
     };
 
-    for (const block of blocks) {
+    // add the tree entities
+    for (const tree of trees) {
       initialState.entities.push({
-        type: "BLOCK",
-        x: block[0],
-        y: block[1],
+        type: "TREE",
+        x: tree[0],
+        y: tree[1],
         sprite: 4,
       });
     }
 
     return initialState;
   },
-
+  // the number of updates per second the game logic is going to run out. In most
+  // cases this doesn't need to be as high as 30 but for the purposes of the
+  // tech mode we'll just use the maximum
   updatesPerSecond: 30,
   // the update loop where we progress the game based on the current player inputs
   // that have been sent through actions.
