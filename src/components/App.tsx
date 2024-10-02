@@ -1,13 +1,29 @@
 import "./App.css";
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import React from "react";
 
 import { BlurFilter, TextStyle } from "pixi.js";
 import { Stage, Container, Sprite, Text } from "@pixi/react";
+import { PlayerId } from "rune-sdk";
+
+import { GameState } from "../logic/types";
 
 const App = () => {
+  const [game, setGame] = useState<GameState>();
+  const [yourPlayerId, setYourPlayerId] = useState<PlayerId | undefined>();
+
   const blurFilter = useMemo(() => new BlurFilter(2), []);
   const bunnyUrl = "https://pixijs.io/pixi-react/img/bunny.png";
+
+  useEffect(() => {
+    Rune.initClient({
+      onChange: ({ game, action, yourPlayerId }) => {
+        setGame(game);
+        setYourPlayerId(yourPlayerId);
+      },
+    });
+  }, []);
+
   return (
     <Stage width={800} height={600} options={{ background: 0x1099bb }}>
       <Sprite image={bunnyUrl} x={300} y={150} />
