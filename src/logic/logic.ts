@@ -1,4 +1,4 @@
-import { GameState, Animation, Player } from "./types";
+import { GameState, Animation, Player, Controls } from "./types";
 
 // how much the players will move per frame
 export const MOVE_SPEED = 4;
@@ -53,7 +53,7 @@ Rune.initLogic({
   // we setup the initial game state before any player has
   // a chance to modify it. The initial state is sent to
   // all players to start the game
-  setup: (allPlayerIds) => {
+  setup: (allPlayerIds: any[]) => {
     const initialState: GameState = {
       entities: [],
       // for each of the players Rune says are in the game
@@ -102,7 +102,7 @@ Rune.initLogic({
   updatesPerSecond: 30,
   // the update loop where we progress the game based on the current player inputs
   // that have been sent through actions.
-  update: ({ game }) => {
+  update: ({ game }: { game: GameState }) => {
     // go through all the players and update them
     for (const player of game.players) {
       // assume the player is doing nothing to start with
@@ -169,8 +169,10 @@ Rune.initLogic({
     // Action applied from the client to setup the controls the
     // player is currently pressing. We simple record the controls
     // and let the update() loop actually apply the changes
-    controls: (controls, { game, playerId }) => {
-      const entity = game.players.find((p) => p.playerId === playerId);
+    controls: (controls: Controls, { game, playerId }: any) => {
+      const entity = game.players.find(
+        (p: { playerId: any }) => p.playerId === playerId,
+      );
 
       if (entity && entity.type === "PLAYER") {
         (entity as Player).controls = { ...controls };
