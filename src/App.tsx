@@ -1,7 +1,31 @@
 import { styled } from "styled-components";
-import { useEffect } from "react";
+import {
+  Container,
+  Graphics,
+  PixiRef,
+  Sprite,
+  Stage,
+  useApp,
+  useTick,
+} from "@pixi/react";
+import { Texture } from "pixi.js";
+import { useEffect, useRef, useState } from "react";
+import { PlayerId } from "rune-sdk";
+import { GameState } from "./logic/types";
 
 export function App() {
+  const [game, setGame] = useState<GameState>();
+  const [yourPlayerId, setYourPlayerId] = useState<PlayerId | undefined>();
+
+  useEffect(() => {
+    Rune.initClient({
+      onChange: ({ game, action, yourPlayerId }) => {
+        setGame(game);
+        setYourPlayerId(yourPlayerId);
+      },
+    });
+  }, []);
+
   return (
     <>
       <Root>
