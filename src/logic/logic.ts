@@ -1,4 +1,5 @@
-import { GameState, Animation, Player, Controls } from "./types";
+import { GameState, Player, Controls } from "./types";
+import { Animation } from "./types";
 
 // how much the players will move per frame
 export const MOVE_SPEED = 4;

@@ -7,7 +7,6 @@ export type EntityType = "PLAYER" | "TREE";
 // from the server so everything is synced
 export enum Animation {
   IDLE = 0,
-
   WALK = 6,
 }
 
