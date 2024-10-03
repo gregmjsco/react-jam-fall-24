@@ -1,25 +1,30 @@
+import js from "@eslint/js";
 import globals from "globals";
-import pluginJs from "@eslint/js";
+import runePlugin from "rune-sdk/eslint.js";
 import tseslint from "typescript-eslint";
-import pluginReact from "eslint-plugin-react";
-import eslintPluginPrettierRecommended from "eslint-plugin-prettier/recommended";
+import pluginReactHooks from "eslint-plugin-react-hooks";
+import { fixupPluginRules } from "@eslint/compat";
+import prettier from "eslint-plugin-prettier/recommended";
 
 export default [
-  { files: ["**/*.{js,mjs,cjs,ts,jsx,tsx}"] },
-  { files: ["**/*.js"], languageOptions: { sourceType: "commonjs" } },
-  { languageOptions: { globals: globals.browser } },
   {
-    rules: {
-      eqeqeq: "off",
-      "no-unused-vars": "error",
-      "prefer-const": ["error", { ignoreReadBeforeAssign: true }],
+    languageOptions: {
+      globals: {
+        ...globals.browser,
+        ...globals.es2020,
+      },
+      ecmaVersion: "latest",
+      sourceType: "module",
     },
   },
-  {
-    ignores: [".node_modules/*"],
-  },
-  pluginJs.configs.recommended,
+  js.configs.recommended,
+  ...runePlugin.configs.recommended,
   ...tseslint.configs.recommended,
-  pluginReact.configs.flat.recommended,
-  eslintPluginPrettierRecommended,
+  {
+    plugins: {
+      "react-hooks": fixupPluginRules(pluginReactHooks),
+    },
+    rules: pluginReactHooks.configs.recommended.rules,
+  },
+  prettier,
 ];
